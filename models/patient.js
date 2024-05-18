@@ -7,7 +7,6 @@ const Patient = sequelize.define("patients", {
     allowNull: false,
     type: Sequelize.INTEGER,
   },
-
   name: {
     allowNull: false,
     type: Sequelize.STRING,
@@ -23,6 +22,12 @@ const Patient = sequelize.define("patients", {
   },
   priority: {
     type: Sequelize.INTEGER,
+  },
+  active: {
+    type: Sequelize.BOOLEAN,
+  },
+  attributes: {
+    type: Sequelize.JSON,
   },
 });
 

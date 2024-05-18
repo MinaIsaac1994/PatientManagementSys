@@ -15,6 +15,9 @@ const Team = sequelize.define("team", {
   description: {
     type: Sequelize.STRING,
   },
+  attributes: {
+    type: Sequelize.JSON,
+  },
 });
 
 module.exports = Team;

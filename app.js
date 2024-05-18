@@ -14,6 +14,7 @@ const { get404 } = require("./controllers/404");
 const Team = require("./models/team");
 const User = require("./models/user");
 const Ward = require("./models/ward");
+const Visit = require("./models/visit");
 const Patient = require("./models/patient");
 
 const { handleUserSession } = require("./controllers/session");
@@ -34,22 +35,27 @@ app.use("/wards", wardsRoutes);
 app.use("/patients", patientsRoutes);
 app.use(get404);
 
-//
-//Association
+// Define relationships
 User.belongsTo(Team);
+Team.hasMany(User);
+
+Team.hasMany(Ward);
 Ward.belongsTo(Team);
 
+Ward.hasMany(Patient);
 Patient.belongsTo(Ward);
 
-// User.belongsToMany(Ward, { through: "UserTeamWard" });
-// Ward.belongsToMany(User, { through: "UserTeamWard" });
+Team.hasMany(Patient);
+Patient.belongsTo(Team);
 
-Team.hasMany(User);
-Team.hasMany(Ward);
-Ward.hasMany(Patient);
+User.hasMany(Visit);
+Visit.belongsTo(User);
+
+Patient.hasMany(Visit, { foreignKey: "patientId" });
+Visit.belongsTo(Patient, { foreignKey: "patientId" });
 
 sequelize
-  // .sync({ force: true })
-  .sync()
+  .sync({ force: true })
+  // .sync()
   .then(app.listen(3001))
   .catch((err) => console.log(err));

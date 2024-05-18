@@ -49,7 +49,7 @@ const editTeam = (req, res) => {
       team.description = newDescription;
       return team.save();
     })
-    .then((result) => res.sendStatus(200))
+    .then((result) => res.sendStatus(200))  
     .catch((err) => res.sendStatus(428).send(err.ValidationErrorItem.message));
 };
 
