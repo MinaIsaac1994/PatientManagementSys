@@ -55,7 +55,7 @@ Patient.hasMany(Visit, { foreignKey: "patientId" });
 Visit.belongsTo(Patient, { foreignKey: "patientId" });
 
 sequelize
-  .sync({ force: true })
-  // .sync()
+  // .sync({ force: true })
+  .sync()
   .then(app.listen(3001))
   .catch((err) => console.log(err));

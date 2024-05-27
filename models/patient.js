@@ -29,6 +29,18 @@ const Patient = sequelize.define("patients", {
   attributes: {
     type: Sequelize.JSON,
   },
+  address: {
+    type: Sequelize.STRING,
+  },
+  area: {
+    type: Sequelize.STRING,
+  },
+  details: {
+    type: Sequelize.STRING,
+  },
+  specificity: {
+    type: Sequelize.STRING,
+  },
 });
 
 module.exports = Patient;

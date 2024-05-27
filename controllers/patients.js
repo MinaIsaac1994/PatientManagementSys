@@ -1,27 +1,48 @@
 const Team = require("../models/team");
 const Patient = require("../models/patient");
+const Ward = require("../models/ward");
 
 const addPatient = async (req, res) => {
   try {
-    const teamId = req.headers.teamid ?? null;
+    const wardId = req.body.wardId ?? null;
 
-    if (teamId == null)
-      throw new Error("Patient must be associated with a team");
+    if (wardId == null)
+      throw new Error("Patient must be associated with a ward");
 
-    const team = await Team.findByPk(teamId);
-    if (!team) throw new Error("Team not found");
+    const ward = await Ward.findByPk(wardId);
+    if (!ward) throw new Error("Team not found");
 
-    const { nhs_number, name, EngagementCount, PendingCount, DOB, priority } =
-      req.body;
+    const teamId = ward.teamId;
+
+    const {
+      DOB,
+      name,
+      area,
+      active,
+      details,
+      address,
+      priority,
+      nhs_number,
+      attributes,
+      specificity,
+    } = req.body;
     const patient = await Patient.create({
       DOB,
       name,
+      // area,
+      // active,
+      // details,
+      // address,
       priority,
       nhs_number,
-      PendingCount,
-      EngagementCount,
+      attributes,
+      // specificity,
     });
-    await patient.setTeam(team);
+    await patient.setWard(ward);
+    if (teamId) {
+      const team = await Team.findByPk(teamId);
+      if (team) await patient.setTeam(team);
+    }
     res.status(200).send(patient);
   } catch (error) {
     res.status(404).send({ message: error.message });
