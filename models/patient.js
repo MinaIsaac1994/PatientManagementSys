@@ -5,7 +5,7 @@ const Patient = sequelize.define("patients", {
   nhs_number: {
     primaryKey: true,
     allowNull: false,
-    type: Sequelize.INTEGER,
+    type: Sequelize.BIGINT,
   },
   name: {
     allowNull: false,
@@ -39,6 +39,9 @@ const Patient = sequelize.define("patients", {
     type: Sequelize.STRING,
   },
   specificity: {
+    type: Sequelize.STRING,
+  },
+  diagnosis: {
     type: Sequelize.STRING,
   },
 });

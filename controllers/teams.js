@@ -1,6 +1,9 @@
+const { Sequelize } = require("sequelize");
+const Patient = require("../models/patient");
 const Teams = require("../models/team");
 const User = require("../models/user");
 const Ward = require("../models/ward");
+const { sequelize } = require("../util/database");
 
 const addTeam = async (req, res) => {
   const { name, description, usersId = [], wardsId = [] } = req.body;
@@ -49,7 +52,7 @@ const editTeam = (req, res) => {
       team.description = newDescription;
       return team.save();
     })
-    .then((result) => res.sendStatus(200))  
+    .then((result) => res.sendStatus(200))
     .catch((err) => res.sendStatus(428).send(err.ValidationErrorItem.message));
 };
 
@@ -63,12 +66,28 @@ const deleteTeam = (req, res) => {
     .catch((err) => res.sendStatus(428).send(err.ValidationErrorItem.message));
 };
 
-const getTeamById = (req, res) => {
-  Teams.findByPk(req.params.id)
-    .then((team) => {
-      res.send(team);
-    })
-    .catch((err) => console.log(err));
+const getTeamById = async (req, res) => {
+  try {
+    const team = await Teams.findByPk(req.params.id, {
+      include: [
+        {
+          model: User,
+          as: "users",
+          attributes: {
+            exclude: ["updatedAt", "createdAt"],
+          },
+        },
+        {
+          model: Patient,
+          as: "patients",
+          // attributes: ["priority"],
+        },
+      ],
+    });
+    res.send(team);
+  } catch (error) {
+    res.status(500).send("Error fetching teams");
+  }
 };
 
 const getAllTeams = async (req, res) => {
@@ -76,14 +95,53 @@ const getAllTeams = async (req, res) => {
     const teams = await Teams.findAll({
       include: [
         {
-          model: User, // Assuming you have a User model associated with Team
-          as: "users", // Alias for the association
+          model: User,
+          as: "users",
+          attributes: {
+            exclude: ["updatedAt", "createdAt"],
+          },
+        },
+        {
+          model: Patient,
+          as: "patients",
+          attributes: ["priority"],
         },
       ],
+      attributes: {
+        include: [
+          [
+            Sequelize.literal(
+              "(SELECT COUNT(*) FROM `patients` AS `patients` WHERE `patients`.`teamId` = `team`.`id`)"
+            ),
+            "totalPatients",
+          ],
+        ],
+        exclude: ["updatedAt", "createdAt"],
+      },
     });
-    res.send(teams);
+
+    const formattedTeams = teams.map((team) => {
+      const priorityCounts = team.patients.reduce((acc, { priority }) => {
+        acc[priority] = (acc[priority] || 0) + 1;
+        return acc;
+      }, {});
+
+      const priorities = Object.entries(priorityCounts).map(
+        ([priority, count]) => ({
+          [priority]: count,
+        })
+      );
+
+      // Replace the patients array with the grouped priorities
+      return {
+        ...team.toJSON(),
+        priorities,
+        patients: undefined,
+      };
+    });
+
+    res.send(formattedTeams);
   } catch (err) {
-    console.log(err);
     res.status(500).send("Error fetching teams");
   }
 };
