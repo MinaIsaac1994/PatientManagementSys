@@ -4,47 +4,37 @@ const Ward = require("../models/ward");
 
 const addPatient = async (req, res) => {
   try {
-    const wardId = req.body.wardId ?? null;
+    let ward;
+    const wardId = typeof req.body.wardId == "number" ? req.body.wardId : null;
 
-    if (wardId == null)
-      throw new Error("Patient must be associated with a ward");
+    if (wardId !== null) {
+      ward = await Ward.findByPk(wardId);
 
-    const ward = await Ward.findByPk(wardId);
-    if (!ward) throw new Error("Team not found");
-
-    const teamId = ward.teamId;
-
-    const {
-      DOB,
-      name,
-      area,
-      active,
-      details,
-      address,
-      priority,
-      diagnosis,
-      nhs_number,
-      attributes,
-      specificity,
-    } = req.body;
-    const patient = await Patient.create({
-      DOB,
-      name,
-      area,
-      active,
-      details,
-      address,
-      priority,
-      diagnosis,
-      nhs_number,
-      attributes,
-      specificity,
-    });
-    await patient.setWard(ward);
-    if (teamId) {
-      const team = await Team.findByPk(teamId);
-      if (team) await patient.setTeam(team);
+      if (!ward) {
+        throw new Error("Ward not found");
+      }
     }
+
+    const updatableFields = Object.keys(Patient.rawAttributes);
+    let newPatient = {};
+    updatableFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        newPatient[field] = req.body[field];
+      }
+    });
+
+    const patient = await Patient.create(newPatient);
+
+    if (ward) {
+      await patient.setWard(ward);
+
+      const teamId = ward.teamId;
+      if (teamId) {
+        const team = await Team.findByPk(teamId);
+        if (team) await patient.setTeam(team);
+      }
+    }
+
     res.status(200).send(patient);
   } catch (error) {
     res.status(404).send({ message: error.message });
@@ -115,7 +105,7 @@ const getAllPatients = async (req, res) => {
     });
     res.send(patients);
   } catch (error) {
-    res.status(500).send("Error fetching patients");
+    res.status(500).send(error);
   }
 };
 

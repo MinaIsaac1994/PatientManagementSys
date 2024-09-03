@@ -3,11 +3,18 @@ const { sequelize } = require("../util/database");
 
 const Visit = sequelize.define("visit", {
   id: {
-    type: Sequelize.STRING,
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    allowNull: false,
     primaryKey: true,
   },
-  date: {
-    type: Sequelize.DATE,
+  ward: {
+    allowNull: false,
+    type: Sequelize.STRING,
+  },
+  team: {
+    allowNull: false,
+    type: Sequelize.STRING,
   },
 });
 

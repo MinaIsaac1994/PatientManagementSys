@@ -44,6 +44,9 @@ const Patient = sequelize.define("patients", {
   diagnosis: {
     type: Sequelize.STRING,
   },
+  mffd: {
+    type: Sequelize.BOOLEAN,
+  },
 });
 
 module.exports = Patient;

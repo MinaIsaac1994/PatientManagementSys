@@ -1,9 +1,8 @@
-const { Sequelize } = require("sequelize");
-const Patient = require("../models/patient");
 const Teams = require("../models/team");
 const User = require("../models/user");
 const Ward = require("../models/ward");
-const { sequelize } = require("../util/database");
+const { Sequelize } = require("sequelize");
+const Patient = require("../models/patient");
 
 const addTeam = async (req, res) => {
   const { name, description, usersId = [], wardsId = [] } = req.body;
@@ -81,6 +80,12 @@ const getTeamById = async (req, res) => {
           model: Patient,
           as: "patients",
           // attributes: ["priority"],
+          include: {
+            model: Ward,
+            attributes: {
+              exclude: ["updatedAt", "createdAt"],
+            },
+          },
         },
       ],
     });
@@ -153,3 +158,15 @@ module.exports = {
   getTeamById,
   getAllTeams,
 };
+
+
+
+// date time 
+// therapists
+// speciality 
+//ward
+//team
+// outcomes: dc, fu, refused
+// audit tab
+
+//add pathways in patients details

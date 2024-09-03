@@ -3,11 +3,12 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 
+const authRoutes = require("./routes/auth");
 const teamsRoutes = require("./routes/teams");
 const usersRoutes = require("./routes/users");
-const patientsRoutes = require("./routes/patients");
 const wardsRoutes = require("./routes/wards");
-const authRoutes = require("./routes/auth");
+const visitsRoutes = require("./routes/visits");
+const patientsRoutes = require("./routes/patients");
 
 const { get404 } = require("./controllers/404");
 
@@ -32,6 +33,7 @@ app.use(handleUserSession);
 app.use("/teams", teamsRoutes);
 app.use("/users", usersRoutes);
 app.use("/wards", wardsRoutes);
+app.use("/visits", visitsRoutes);
 app.use("/patients", patientsRoutes);
 app.use(get404);
 
