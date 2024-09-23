@@ -14,5 +14,8 @@ router.get("/:id", getPatientById);
 router.delete("/:id", deletePatient);
 router.get("/", getAllPatients);
 router.post("/", addPatient);
+router.use((req, res, next) => {
+  console.log("after");
+});
 
 module.exports = router;
